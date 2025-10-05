@@ -1,0 +1,60 @@
+# ----------------------------------------------------------------------
+# n8n Project Specifics
+#
+# n8n data directory typically contains configuration,
+# database (SQLite), and logs.
+# ----------------------------------------------------------------------
+.n8n/
+/config/
+/data/
+/logs/
+*.sqlite
+*.db
+
+# Node.js environments (n8n is built on Node)
+# ----------------------------------------------------------------------
+/node_modules
+/npm-debug.log
+/npm-debug.log.*
+/yarn-debug.log
+/yarn-error.log
+/lerna-debug.log
+.pnpm-debug.log*
+.npm
+.eslintcache
+/dist
+/build
+
+# ----------------------------------------------------------------------
+# Visual Studio Code (VS Code)
+# ----------------------------------------------------------------------
+.vscode/
+# Exclude all settings, launch, and tasks files, but keep recommended
+# extensions file (extensions.json)
+!/.vscode/extensions.json
+.history/
+*.code-workspace
+*.code-search
+.DS_Store
+
+# ----------------------------------------------------------------------
+# Environment/Secrets
+# ----------------------------------------------------------------------
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+*.keys
+*.secrets
+
+# ----------------------------------------------------------------------
+# Operating System files
+# ----------------------------------------------------------------------
+# macOS
+.DS_Store
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db

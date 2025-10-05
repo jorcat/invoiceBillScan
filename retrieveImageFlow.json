@@ -1,0 +1,402 @@
+{
+  "name": "retrieveImageFlow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        -32
+      ],
+      "id": "cb968499-cd54-4f28-8675-b784aeed68af",
+      "name": "When chat message received",
+      "webhookId": "cf895757-8eb8-43d6-a329-00781e04ffa2"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.fileID }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        576,
+        80
+      ],
+      "id": "c46670f5-2a78-4bf4-85e9-56461d80bf2c",
+      "name": "Download image file",
+      "retryOnFail": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "i8ku3HFfWzBrUNAh",
+          "name": "Google Drive rebutLabeler account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "fileID"
+            },
+            {
+              "name": "fileType"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        352
+      ],
+      "id": "416dcb5c-6038-4b4d-8104-4d43dadabaf4",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5d667531-6725-43ed-876a-f65f55c758e7",
+              "name": "fileID",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "8b1c1d1c-ec5a-42fd-ad40-e39f29c72fd7",
+              "name": "fileType",
+              "value": "document",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        32
+      ],
+      "id": "fc60c70c-74d9-4fb1-acc9-dd14bbe77555",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.fileType }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "40472ff5-1eac-44e9-8dc0-b0dae55b0535"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "376126e5-4e04-4d0c-9ff1-5213486e8f73",
+                    "leftValue": "={{ $json.fileType }}",
+                    "rightValue": "document",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        192,
+        176
+      ],
+      "id": "a26d123e-a03e-4cc3-a04a-4023e449cb25",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.fileID }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        576,
+        272
+      ],
+      "id": "12359d77-1ef7-4f06-8f8f-634a3cbd860c",
+      "name": "Download pdf file",
+      "retryOnFail": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "i8ku3HFfWzBrUNAh",
+          "name": "Google Drive rebutLabeler account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash-lite"
+        },
+        "text": "Eres un **Analizador Experto en Documentos Financieros (Recibos y Facturas)**. Tu tarea es extraer información precisa del documento proporcionado y devolverla en un formato JSON estandarizado y estructurado.\n\n---\n\n### **Instrucciones de Extracción Estrictas**\n\nAnaliza la imagen de la factura o el recibo y extrae estrictamente los siguientes seis puntos de datos, aplicando los formatos especificados:\n\n1.  **Importe Total:** El valor final y total de la compra. Debe ser un número con **punto (`.`) como separador decimal** y **sin símbolo de moneda** (ej., `45.99`).\n2.  **Fecha y Hora:** La fecha y, si está disponible, la hora de la transacción, usando el **formato estándar ISO 8601** (ej., `YYYY-MM-DD` o `YYYY-MM-DDTHH:MM:SSZ`).\n3.  **Entidad/Tienda:** El nombre completo de la empresa o establecimiento emisor del documento.\n4.  **Identificador Fiscal:** Solo el número de identificación fiscal (NIF, CIF, VAT ID, etc.), **sin incluir el prefijo descriptivo** (ej., `A12345678`).\n5.  **Clasificación de Categoría:** Clasifica la compra en la categoría más relevante (ej., \"Alimentación\", \"Electrónica\", \"Servicios\").\n6.  **Resumen de la Compra:** Una breve descripción (máximo dos frases) de los artículos principales o el propósito de la compra.\n\n### **Formato de Salida Obligatorio**\n\nDebes responder **EXCLUSIVAMENTE** con un objeto JSON válido, siguiendo el siguiente esquema.\n\n**Regla de Sustitución:** Si un dato no se encuentra o no es legible en el recibo, debes utilizar el valor `\"?\"` para ese campo.\n\n```json\n{\n  \"importe_total\": \"string\",\n  \"fecha_hora\": \"string\",\n  \"entidad_tienda\": \"string\",\n  \"identificador_fiscal\": \"string\",\n  \"categoria_clasificacion\": \"string\",\n  \"resumen_compra\": \"string\"\n}\n",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        784,
+        272
+      ],
+      "id": "03baef65-fc9f-4a80-9daa-475e69e98a3b",
+      "name": "Analiza PDF recibo",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IEncbOgoJm7MnPls",
+          "name": "Google Gemini(PaLM) Api n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "Eres un **Analizador Experto en Documentos Financieros (Recibos y Facturas)**. Tu tarea es extraer información precisa de la imagen proporcionada y devolverla en un formato JSON estandarizado y estructurado.\n\n---\n\n### **Instrucciones de Extracción Estrictas**\n\nAnaliza la imagen de la factura o el recibo y extrae estrictamente los siguientes seis puntos de datos, aplicando los formatos especificados:\n\n1.  **Importe Total:** El valor final y total de la compra. Debe ser un número con **punto (`.`) como separador decimal** y **sin símbolo de moneda** (ej., `45.99`).\n2.  **Fecha y Hora:** La fecha y, si está disponible, la hora de la transacción, usando el **formato estándar ISO 8601** (ej., `YYYY-MM-DDTHH:MM:SSZ`).\n3.  **Entidad/Tienda:** El nombre completo de la empresa o establecimiento emisor del documento.\n4.  **Identificador Fiscal:** Solo el número de identificación fiscal (NIF, CIF, VAT ID, etc.), **sin incluir el prefijo descriptivo** (ej., `A12345678`).\n5.  **Clasificación de Categoría:** Clasifica la compra en la categoría más relevante (ej., \"Alimentación\", \"Electrónica\", \"Servicios\", \"Combustible\").\n6.  **Resumen de la Compra:** Una breve descripción (máximo dos frases) de los artículos principales, si solo hay uno el nombre del articulo comprado o el propósito de la compra.\n\n### **Formato de Salida Obligatorio**\n\nDebes responder **EXCLUSIVAMENTE** con un objeto JSON válido, siguiendo el siguiente esquema.\n\n**Regla de Sustitución:** Si un dato no se encuentra o no es legible en el recibo, debes utilizar el valor `\"?\"` para ese campo.\n\n```json\n{\n  \"importe_total\": \"string\",\n  \"fecha_hora\": \"timestamp\",\n  \"entidad_tienda\": \"string\",\n  \"identificador_fiscal\": \"string\",\n  \"categoria_clasificacion\": \"string\",\n  \"resumen_compra\": \"string\"\n}\n",
+        "inputType": "base64",
+        "options": {
+          "detail": "auto"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        784,
+        80
+      ],
+      "id": "eb89f704-4070-49ee-aa27-1b19a8b3b3f6",
+      "name": "Analyze image",
+      "credentials": {
+        "openAiApi": {
+          "id": "2PZ4R8PdtvZ53flB",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nodo Code de n8n\nconst entrada = $input.first().json.content;\n\nconst limpio = entrada\n  .replace(\"```json\", \"\")\n  .replace(\"```\", \"\")\n  .trim();\n\nreturn JSON.parse(limpio);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        80
+      ],
+      "id": "a0d939e4-cfd3-4a05-b4b9-ba8be3fe0b2f",
+      "name": "Transform OpenAI output"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nodo Code de n8n\nconst entrada = $input.first().json?.content?.parts?.[0]?.text;\n\nconst limpio = entrada\n  .replace(\"```json\", \"\")\n  .replace(\"```\", \"\")\n  .trim();\n\nreturn JSON.parse(limpio);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        272
+      ],
+      "id": "4124bbf3-f23c-42a0-a49b-29827536116f",
+      "name": "Transform Gemini output"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download image file": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download image file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download pdf file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download pdf file": {
+      "main": [
+        [
+          {
+            "node": "Analiza PDF recibo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analiza PDF recibo": {
+      "main": [
+        [
+          {
+            "node": "Transform Gemini output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Transform OpenAI output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform OpenAI output": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "yUuds9itCr81Ivjf"
+  },
+  "versionId": "141a491f-8596-4713-b917-f9693ceac6de",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "92d7adad842a7a63843f6ad7e7b1ecbf41b7466692d9c7982f4d770a025e1bca"
+  },
+  "id": "p46Bj0PkzWA5buhX",
+  "tags": [
+    {
+      "name": "finanzas",
+      "id": "KhznOSPM4LLYX5PF",
+      "createdAt": "2025-10-04T14:14:39.168Z",
+      "updatedAt": "2025-10-04T14:14:39.168Z"
+    },
+    {
+      "name": "OCR",
+      "id": "PDLoFOBj3yR1kB9p",
+      "createdAt": "2025-10-04T17:02:28.988Z",
+      "updatedAt": "2025-10-04T17:02:28.988Z"
+    }
+  ]
+}

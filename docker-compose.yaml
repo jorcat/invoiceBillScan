@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=5678
+      - WEBHOOK_URL=https://${N8N_HOST} # Adjust if using a reverse proxy
+      - GENERIC_TIMEZONE=Europe/MAdrid
+      # Other important variables:
+      - NODE_ENV=production
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=user
+      - N8N_BASIC_AUTH_PASSWORD=yoursecurepassword
+    volumes:
+      - ${PWD}/.n8n:/home/node/.n8n
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
