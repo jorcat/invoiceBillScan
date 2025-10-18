@@ -1,0 +1,110 @@
+@startuml InvoiceBillScan_Sequence_Diagram
+!theme plain
+
+title Image/PDF Processing Flow – InvoiceBillScan Workflow
+
+actor User
+participant Telegram
+
+box "Main Workflow: InvoiceBillScan" #LightBlue
+    participant WF_MAIN as "n8n Main Flow"
+end box
+
+box "Sub-Workflow: AI Vision Agent" #LightGreen
+    participant WF_SUB as "n8n Sub-Flow"
+end box
+
+database "Redis Cache" as REDIS
+database "Data Table (Ledger)" as DTABLE
+database "Google Drive (Archive)" as GDRIVE
+collections "AI LLM (OpenAI/Gemini)" as LLM
+
+== Start of Processing ==
+
+User -> Telegram : Sends image/PDF
+Telegram -> WF_MAIN : **Telegram Trigger**\n(message.photo | message.document)
+
+== Message Classification ==
+
+WF_MAIN -> WF_MAIN : **Message Switch**\nClassify file type
+note right : Detects whether:\n- text\n- image\n- document
+
+alt File is image
+    WF_MAIN -> WF_MAIN : **Hash to MD5**\nGenerate checksum
+else File is document/PDF
+    WF_MAIN -> WF_MAIN : **Hash PDF to MD5**\nGenerate checksum
+end
+
+== Duplicate Check ==
+
+WF_MAIN -> REDIS : **GetMD5Image_Redis** / **GetMD5Doc_Redis**\nQuery for checksum
+REDIS -> WF_MAIN : Returns storedValue (null or data)
+
+WF_MAIN -> WF_MAIN : **New Image?** / **New Document?**\nDetermine if file is new
+
+alt File already exists
+    WF_MAIN -> Telegram : **Already exists**\nNotify duplicate
+else File is new
+    note over WF_MAIN : Continue processing
+
+    == Saving to Google Drive ==
+
+    alt It is an image
+        WF_MAIN -> WF_MAIN : **Wait for image** (Merge)
+        WF_MAIN -> GDRIVE : **Save image to GDrive**
+    else It is a document
+        WF_MAIN -> WF_MAIN : **Wait for document** (Merge)
+        WF_MAIN -> GDRIVE : **Save document to GDrive**
+    end
+
+    GDRIVE -> WF_MAIN : Returns file ID and metadata
+
+    == AI Vision Analysis ==
+
+    alt It is an image
+        WF_MAIN -> WF_SUB : **Invoke Sub-Workflow**\n{fileID: id, fileType: "image"}
+    else It is a document
+        WF_MAIN -> WF_SUB : **Invoke Sub-Workflow**\n{fileID: id, fileType: "document"}
+    end
+
+    WF_SUB -> GDRIVE : Download file for analysis
+    WF_SUB -> LLM : **AI Vision Processing**\nExtract invoice/receipt data
+    note right of LLM : Extracts:\n- total_amount\n- date_time\n- vendor_name\n- classification_category\n- purchase_summary
+
+    LLM -> WF_SUB : Returns structured data
+    WF_SUB -> WF_MAIN : Returns AI analysis
+
+    == Result Validation ==
+
+    alt It is an image
+        WF_MAIN -> WF_MAIN : **Valid image?**\nCheck classification_category != "UNKNOWN"
+    else It is a document
+        WF_MAIN -> WF_MAIN : **Valid document?**\nCheck classification_category != "UNKNOWN"
+    end
+
+    alt Valid invoice/receipt
+        alt It is an image
+            WF_MAIN -> WF_MAIN : **Set Image Data**\nStructure final data
+        else It is a document
+            WF_MAIN -> WF_MAIN : **Set Document Data**\nStructure final data
+        end
+
+        == Final Storage ==
+
+        WF_MAIN -> DTABLE : **Append row to table**\nRecord in financial ledger
+        WF_MAIN -> REDIS : **SetMD5Key_Redis**\nStore checksum as processed
+        WF_MAIN -> GDRIVE : **Rename file**\nRename with extracted details
+        WF_MAIN -> Telegram : **Success message**\n✅ Invoice recorded successfully
+
+    else Invalid invoice/receipt
+        alt It is an image
+            WF_MAIN -> GDRIVE : **Delete image**\nRemove invalid file
+            WF_MAIN -> Telegram : **Invalid invoice image**\n❌ Not a valid receipt
+        else It is a document
+            WF_MAIN -> GDRIVE : **Delete document**\nRemove invalid file
+            WF_MAIN -> Telegram : **Invalid invoice document**\n❌ Not a valid receipt
+        end
+    end
+end
+
+@enduml

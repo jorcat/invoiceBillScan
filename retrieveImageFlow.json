@@ -193,7 +193,7 @@
           "mode": "list",
           "cachedResultName": "models/gemini-2.0-flash-lite"
         },
-        "text": "Eres un **Analizador Experto en Documentos Financieros (Recibos y Facturas)**. Tu tarea es extraer información precisa del documento proporcionado y devolverla en un formato JSON estandarizado y estructurado.\n\n---\n\n### **Instrucciones de Extracción Estrictas**\n\nAnaliza la imagen de la factura o el recibo y extrae estrictamente los siguientes seis puntos de datos, aplicando los formatos especificados:\n\n1.  **Importe Total:** El valor final y total de la compra. Debe ser un número con **punto (`.`) como separador decimal** y **sin símbolo de moneda** (ej., `45.99`).\n2.  **Fecha y Hora:** La fecha y, si está disponible, la hora de la transacción, usando el **formato estándar ISO 8601** (ej., `YYYY-MM-DD` o `YYYY-MM-DDTHH:MM:SSZ`).\n3.  **Entidad/Tienda:** El nombre completo de la empresa o establecimiento emisor del documento.\n4.  **Identificador Fiscal:** Solo el número de identificación fiscal (NIF, CIF, VAT ID, etc.), **sin incluir el prefijo descriptivo** (ej., `A12345678`).\n5.  **Clasificación de Categoría:** Clasifica la compra en la categoría más relevante (ej., \"Alimentación\", \"Electrónica\", \"Servicios\").\n6.  **Resumen de la Compra:** Una breve descripción (máximo dos frases) de los artículos principales o el propósito de la compra.\n\n### **Formato de Salida Obligatorio**\n\nDebes responder **EXCLUSIVAMENTE** con un objeto JSON válido, siguiendo el siguiente esquema.\n\n**Regla de Sustitución:** Si un dato no se encuentra o no es legible en el recibo, debes utilizar el valor `\"?\"` para ese campo.\n\n```json\n{\n  \"importe_total\": \"string\",\n  \"fecha_hora\": \"string\",\n  \"entidad_tienda\": \"string\",\n  \"identificador_fiscal\": \"string\",\n  \"categoria_clasificacion\": \"string\",\n  \"resumen_compra\": \"string\"\n}\n",
+        "text": "Eres un **Analizador Experto en Documentos Financieros (Recibos y Facturas)**. Tu tarea es extraer información precisa del documento proporcionado y devolverla en un formato JSON estandarizado y estructurado.\n\n---\n\n### **Instrucciones de Extracción Estrictas**\n\nAnaliza el documento de la factura o el recibo y extrae estrictamente los siguientes seis puntos de datos, aplicando los formatos especificados:\n\n1.  **Importe Total:** El valor final y total de la compra. Debe ser un número con **punto (`.`) como separador decimal** y **sin símbolo de moneda** (ej., `45.99`).\n2.  **Fecha y Hora:** La fecha y, si está disponible, la hora de la transacción, usando el **formato estándar ISO 8601** (ej., `YYYY-MM-DDTHH:MM:SSZ`).\n3.  **Entidad/Tienda:** El nombre completo de la empresa o establecimiento emisor del documento.\n4.  **Identificador Fiscal:** Solo el número de identificación fiscal (NIF, CIF, VAT ID, etc.), **sin incluir el prefijo descriptivo, sin incluir puntos `.` o guiones `-` ** (ej., `A12345678`).\n5.  **Clasificación de Categoría:** Clasifica la compra en la categoría más relevante:\n # Alimentación\n # Electrónica\n # Servicios\n # Farmacia\n # Combustible\n # Supermercado\n # Suministros\n # Peaje \n # Transporte Público\n # Ropa\n # Restaurante\n # Otros (en caso que ninguna de las anteriores encaje) \n6.  **Resumen de la Compra:** Una breve descripción (máximo dos frases) de los artículos principales, si solo hay uno el nombre del articulo comprado o el propósito de la compra.\n\n### **Formato de Salida Obligatorio**\n\nDebes responder **EXCLUSIVAMENTE** con un objeto JSON válido, siguiendo el siguiente esquema.\n\n**Regla de Sustitución:** Si un dato no se encuentra o no es legible en el recibo, debes utilizar el valor `\"?\"` para ese campo.\n\n```json\n{\n  \"importe_total\": \"string\",\n  \"fecha_hora\": \"timestamp\",\n  \"entidad_tienda\": \"string\",\n  \"identificador_fiscal\": \"string\",\n  \"categoria_clasificacion\": \"string\",\n  \"resumen_compra\": \"string\"\n}\n\n\n**Control de Error \nAntes de intentar la extracción, determina si el documento es un recibo, una factura, un tiquet, un albaran o un documento financiero legible.\n\nSi el documento NO es claramente uno de estos documentos (ej. es una selfie, un paisaje, o un documento no financiero) y no contiene un importe claro, DEBES detener la extracción y responder EXCLUSIVAMENTE con el JSON de error definido a continuación.\n\n```json\n{\n  \"importe_total\": \"\",\n  \"fecha_hora\": \"\",\n  \"entidad_tienda\": \"\",\n  \"identificador_fiscal\": \"\",\n  \"categoria_clasificacion\": \"UNKNOWN\",\n  \"resumen_compra\": \"\"\n}",
         "inputType": "binary",
         "options": {}
       },
@@ -205,6 +205,8 @@
       ],
       "id": "03baef65-fc9f-4a80-9daa-475e69e98a3b",
       "name": "Analiza PDF recibo",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
       "credentials": {
         "googlePalmApi": {
           "id": "IEncbOgoJm7MnPls",
@@ -222,7 +224,7 @@
           "mode": "list",
           "cachedResultName": "GPT-4O-MINI"
         },
-        "text": "Eres un **Analizador Experto en Documentos Financieros (Recibos y Facturas)**. Tu tarea es extraer información precisa de la imagen proporcionada y devolverla en un formato JSON estandarizado y estructurado.\n\n---\n\n### **Instrucciones de Extracción Estrictas**\n\nAnaliza la imagen de la factura o el recibo y extrae estrictamente los siguientes seis puntos de datos, aplicando los formatos especificados:\n\n1.  **Importe Total:** El valor final y total de la compra. Debe ser un número con **punto (`.`) como separador decimal** y **sin símbolo de moneda** (ej., `45.99`).\n2.  **Fecha y Hora:** La fecha y, si está disponible, la hora de la transacción, usando el **formato estándar ISO 8601** (ej., `YYYY-MM-DDTHH:MM:SSZ`).\n3.  **Entidad/Tienda:** El nombre completo de la empresa o establecimiento emisor del documento.\n4.  **Identificador Fiscal:** Solo el número de identificación fiscal (NIF, CIF, VAT ID, etc.), **sin incluir el prefijo descriptivo** (ej., `A12345678`).\n5.  **Clasificación de Categoría:** Clasifica la compra en la categoría más relevante (ej., \"Alimentación\", \"Electrónica\", \"Servicios\", \"Combustible\").\n6.  **Resumen de la Compra:** Una breve descripción (máximo dos frases) de los artículos principales, si solo hay uno el nombre del articulo comprado o el propósito de la compra.\n\n### **Formato de Salida Obligatorio**\n\nDebes responder **EXCLUSIVAMENTE** con un objeto JSON válido, siguiendo el siguiente esquema.\n\n**Regla de Sustitución:** Si un dato no se encuentra o no es legible en el recibo, debes utilizar el valor `\"?\"` para ese campo.\n\n```json\n{\n  \"importe_total\": \"string\",\n  \"fecha_hora\": \"timestamp\",\n  \"entidad_tienda\": \"string\",\n  \"identificador_fiscal\": \"string\",\n  \"categoria_clasificacion\": \"string\",\n  \"resumen_compra\": \"string\"\n}\n",
+        "text": "Eres un **Analizador Experto en Documentos Financieros (Recibos y Facturas)**. Tu tarea es extraer información precisa de la imagen proporcionada y devolverla en un formato JSON estandarizado y estructurado.\n\n---\n\n### **Instrucciones de Extracción Estrictas**\n\nAnaliza la imagen de la factura o el recibo y extrae estrictamente los siguientes seis puntos de datos, aplicando los formatos especificados:\n\n1.  **Importe Total:** El valor final y total de la compra. Debe ser un número con **punto (`.`) como separador decimal** y **sin símbolo de moneda** (ej., `45.99`).\n2.  **Fecha y Hora:** La fecha y, si está disponible, la hora de la transacción, usando el **formato estándar ISO 8601** (ej., `YYYY-MM-DDTHH:MM:SSZ`).\n3.  **Entidad/Tienda:** El nombre completo de la empresa o establecimiento emisor del documento.\n4.  **Identificador Fiscal:** Solo el número de identificación fiscal (NIF, CIF, VAT ID, etc.), **sin incluir el prefijo descriptivo, sin incluir puntos `.` o guiones `-` ** (ej., `A12345678`).\n5.  **Clasificación de Categoría:** Clasifica la compra en la categoría más relevante:\n # Alimentación\n # Electrónica\n # Servicios\n # Farmacia\n # Combustible\n # Supermercado\n # Suministros\n # Peaje \n # Transporte Público\n # Ropa\n # Restaurante\n # Otros (en caso que ninguna de las anteriores encaje) \n6.  **Resumen de la Compra:** Una breve descripción (máximo dos frases) de los artículos principales, si solo hay uno el nombre del articulo comprado o el propósito de la compra.\n\n### **Formato de Salida Obligatorio**\n\nDebes responder **EXCLUSIVAMENTE** con un objeto JSON válido, siguiendo el siguiente esquema.\n\n**Regla de Sustitución:** Si un dato no se encuentra o no es legible en el recibo, debes utilizar el valor `\"?\"` para ese campo.\n\n```json\n{\n  \"importe_total\": \"string\",\n  \"fecha_hora\": \"timestamp\",\n  \"entidad_tienda\": \"string\",\n  \"identificador_fiscal\": \"string\",\n  \"categoria_clasificacion\": \"string\",\n  \"resumen_compra\": \"string\"\n}\n\n\n**Control de Error \nAntes de intentar la extracción, determina si la imagen es un recibo, una factura, un tiquet, un albaran o un documento financiero legible.\n\nSi la imagen NO es claramente uno de estos documentos (ej. es una selfie, un paisaje, o un documento no financiero) y no contiene un importe claro, DEBES detener la extracción y responder EXCLUSIVAMENTE con el JSON de error definido a continuación.\n\n```json\n{\n  \"importe_total\": \"\",\n  \"fecha_hora\": \"\",\n  \"entidad_tienda\": \"\",\n  \"identificador_fiscal\": \"\",\n  \"categoria_clasificacion\": \"UNKNOWN\",\n  \"resumen_compra\": \"\"\n}",
         "inputType": "base64",
         "options": {
           "detail": "auto"
@@ -236,6 +238,8 @@
       ],
       "id": "eb89f704-4070-49ee-aa27-1b19a8b3b3f6",
       "name": "Analyze image",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
       "credentials": {
         "openAiApi": {
           "id": "2PZ4R8PdtvZ53flB",
@@ -373,13 +377,13 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner",
     "errorWorkflow": "yUuds9itCr81Ivjf"
   },
-  "versionId": "141a491f-8596-4713-b917-f9693ceac6de",
+  "versionId": "49cf9776-ccb2-444c-b206-34e47e5f14b1",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "92d7adad842a7a63843f6ad7e7b1ecbf41b7466692d9c7982f4d770a025e1bca"
@@ -387,16 +391,16 @@
   "id": "p46Bj0PkzWA5buhX",
   "tags": [
     {
-      "name": "finanzas",
-      "id": "KhznOSPM4LLYX5PF",
       "createdAt": "2025-10-04T14:14:39.168Z",
-      "updatedAt": "2025-10-04T14:14:39.168Z"
+      "updatedAt": "2025-10-04T14:14:39.168Z",
+      "id": "KhznOSPM4LLYX5PF",
+      "name": "finanzas"
     },
     {
-      "name": "OCR",
-      "id": "PDLoFOBj3yR1kB9p",
       "createdAt": "2025-10-04T17:02:28.988Z",
-      "updatedAt": "2025-10-04T17:02:28.988Z"
+      "updatedAt": "2025-10-04T17:02:28.988Z",
+      "id": "PDLoFOBj3yR1kB9p",
+      "name": "OCR"
     }
   ]
 }

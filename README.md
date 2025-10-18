@@ -13,30 +13,44 @@ The project's goal is to convert messy, unstructured file data (such as total am
 The project enables the instant, automated logging of expenses simply by forwarding a photograph or document to a dedicated Telegram bot.
 
 1.  **Rapid Input:** A user forwards a photo or a PDF of a receipt to a **Telegram** bot.
-2.  **Validation & Storage:** The main workflow calculates the file hash (MD5 checksum), checks for duplicates against the Google Sheet, and archives the file in **Google Drive**.
+2.  **Validation & Storage:** The main workflow calculates the file hash (MD5 checksum), checks for duplicates against the Redis cache, and archives the file in **Google Drive**.
 3.  **AI Data Extraction:** The main workflow then calls the **AI Vision Agent Sub-Workflow** to perform the heavy lifting of OCR and data parsing.
-4.  **Registration:** The sub-workflow returns the structured data, which the main workflow then logs to the **Google Sheet**.
+4.  **Registration:** The sub-workflow returns the structured data, which the main workflow then logs to the **Data table**.
 5.  **Confirmation:** The Telegram bot notifies the user of the successful registration.
 
 Screenshot ![Screenshot](images/telegram.screenshot.png)
+
+## 🤖 Secondary Use Case: Ledger Chatbot Queries
+
+Users can interact with the same Telegram bot to query their financial ledger or request summaries, enabling a conversational interface for expense insights.
+
+1.  **Query Input:** The user sends a natural-language query to the Telegram bot (e.g., "Show me last month's total expenses", "What did I spend at supermarkets this week?").
+2.  **Intent Parsing:** An **If** node in the main workflow routes messages that contain text but no media to the **Chatbot Handler** branch.
+3.  **Data Retrieval:** The workflow reads the **Data Table** ledger, filters rows based on the parsed date range or category, and aggregates expense data.
+4.  **AI Summarisation:** The aggregated data is sent to the **AI LLM** node (DeepSeek) with a prompt to generate a concise summary or list as per the user’s query.
+5.  **Response Delivery:** The bot sends back a formatted text response or table to the user in Telegram.
+
+Screenshot ![Screenshot](images/telegram.chatbot.screenshot.png)
 
 ---
 
 ## ⚙️ Workflow Architecture Overview
 
-### Sequence Diagram
+### Sequences Diagrams
 
+- **Invoice Ingestion & Archival:** 
 ![InvoiceBillScan Sequence Diagram](images/sequenceDiagram.invoiceBillScan.png)
+
+- **Ledger Chatbot Interaction:** 
+![Chatbot Sequence Diagram](images/sequenceDiagram.chatbot.invoiceBillScan.png)
 
 The solution consists of two key n8n workflows:
 
-### 1. Main Workflow (Ingestion and Archival)7
+### 1. Main Workflow (`invoiceBillScan`)
 
 ![InvoiceBillScan Workflow Diagram](images/invoiceBillScan.n8n.jpg)
 
-The main flow (**invoiceBillScan**) handles the Telegram trigger, calculates the file hash, checks for duplicates against the Google Sheet, archives the file in Google Drive, and finally, saves the structured output back to the Google Sheet.
-
-
+The main flow (**invoiceBillScan**) handles file ingestion, duplicate checks, archival, AI extraction, and now also routes text-only messages to the **Chatbot Handler** for ledger queries.
 
 ### 2. AI Vision Agent Sub-Workflow (`retrieveImageFlow`)
 This specialised sub-workflow is executed by the main flow and focuses entirely on AI-powered data extraction.
@@ -62,9 +76,11 @@ To successfully deploy and utilise this workflow, you will require the following
 | **n8n** | A functional n8n instance (self-hosted or cloud) with public access enabled for the Telegram webhook. |
 | **Telegram** | A dedicated **Telegram Bot** and the relevant **Chat ID** for submissions. |
 | **Google Drive** | **Google Drive OAuth2** credentials for file saving and downloading. |
-| **Google Sheets** | **Google Sheets OAuth2** credentials for reading/writing the ledger data. |
+| **Data table** | **n8n internal function (beta)** for reading/writing the ledger data. |
+| **DeepSeek Account** | An active API key is required for the chat model. | `DeepSeek` |
 | **OpenAI Account** | An active API key is required for the image processing path. | `OpenAi` |
 | **Google Gemini Account** | An active API key is required for the PDF processing path. | `Google Gemini` |
+| **Redis cache** | A cache system required for storing MD5 checksums to avoid duplicated files. | `Redis` |
 
 ## 🚀 Running n8n with Docker
 
@@ -102,26 +118,26 @@ Since this project consists of two linked workflows, you must import them both a
         * `Analyze image Sub-Workflow`
         * `Analyze document Sub-Workflow`
     * For **both** nodes, open the settings and verify that the **Workflow** selection points to the newly imported `retrieveImageFlow`.
-6.  **Configure Credentials:** Update all nodes that require credentials (Telegram, Google Drive, Google Sheets, OpenAI, Google Gemini) using your specific homelab credentials.
+6.  **Configure Credentials:** Update all nodes that require credentials (Telegram, Google Drive, Redis, DeepSeek, OpenAI, Google Gemini) using your specific homelab credentials.
 For detailed configuration instructions, please see the **Setup Guide** file: [Configuration Steps](setup.md)
 7.  **Activate the Main Workflow:** Once configurations are complete, click the **Activate** toggle for the `invoiceBillScan` workflow. Your Telegram webhook should now be active.
 
 ### 2. Required Data Schema
 
 * **Google Drive:** A specific target folder is needed for file storage.
-* **Google Sheets:** The target spreadsheet must contain the following exact column headers to successfully map the workflow output. **Strict adherence to column names is required.**
+* **Data table (from n8n):** The target table must contain the following exact column headers to successfully map the workflow output. **Strict adherence to column names is required.**
 
-## 📝 Google Sheets Ledger Schema Description
+## 📝 Data table Ledger Schema Description
 
-Here is the description for each column in your Google Sheets ledger, detailing its purpose, source, and expected format. This schema is essential for the n8n workflows to correctly read and write data.
+Here is the description for each column in your data table, detailing its purpose, source, and expected format. This schema is essential for the n8n workflows to correctly read and write data.
 
 | Column Name | Description | Source | Format |
 | :--- | :--- | :--- | :--- |
-| **ID** | A unique numerical identifier assigned sequentially to each row upon entry into the Sheet. | Google Sheets | Integer |
+| **ID_gDrive** | A unique numerical identifier assigned by Google Drive to each file. | Google Drive | String |
 | **checksum** | An **MD5 hash** of the uploaded file (image or document). This value is used by the workflow to prevent duplicate entries of the same receipt. | n8n Flow | String (32-character MD5) |
 | **filename** | The original name of the file uploaded via Telegram (e.g., `IMG_1234.jpg`). | n8n Flow | String |
 | **user** | The Telegram username or unique ID of the person who submitted the receipt. Useful for tracking expenses in multi-user setups. | Telegram | String |
-| **data** | A column reserved for raw, unstructured data or internal debugging JSON if needed, though usually left empty in final design. | n8n Flow | String/JSON |
+| **date** | The precise timestamp (date and time) when the receipt or invoice was initially uploaded and processed by the n8n flow (System Upload/Processing Timestamp). | n8n Flow | String (ISO 8601, e.g., `YYYY-MM-DDTHH:MM:SSZ`) |
 | **URL** | The permanent **public link** to the archived file (image or PDF) in Google Drive. | Google Drive | URL |
 | **thumbnail** | The permanent link to the generated **image thumbnail** of the receipt (only available for image files). | Telegram/n8n Flow | URL |
 | **type** | The file type of the submission, used for routing and MD5 calculation (`image` or `document`). | n8n Flow | String |
@@ -133,8 +149,6 @@ Here is the description for each column in your Google Sheets ledger, detailing 
 | **resumen\_compra** | A short **summary** (1-2 sentences) of the content or purpose of the purchase. | AI Vision Agent | String |
 
 
-
-
 ---
 ## 🙌 Community & Contribution
 
@@ -143,7 +157,7 @@ Here is the description for each column in your Google Sheets ledger, detailing 
 ### Why Contribute?
 
 * **Improve AI Robustness:** Help us refine the system prompts to better handle diverse receipt formats from different countries and vendors.
-* **Expand Integrations:** Want to save data to InfluxDB, Home Assistant, or PostgreSQL instead of Google Sheets? Raise a **Feature Request**!
+* **Expand Integrations:** Want to save data to InfluxDB, Home Assistant, or PostgreSQL instead of Data table? Raise a **Feature Request**!
 * **Refine the Flow:** Suggest optimisations for the MD5 checksum or the file routing logic.
 
 ### How to Participate

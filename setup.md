@@ -1,168 +1,160 @@
-# InvoiceBillScan
+# 🔑 Credential Setup Guide
 
-## 🤖 N8n Ledger Automation for Homelab
+Before running the **InvoiceBillScan** workflows, you must configure the following five external service credentials within your n8n instance.
 
-**InvoiceBillScan** is a custom n8n workflow solution designed for **homelab enthusiasts** to streamline personal finance administration. It leverages a dedicated **AI Vision Agent Sub-Workflow** to intelligently analyse images and PDF documents of receipts and invoices, extracting key financial data into a strictly structured JSON format.
+## Initial Setup & Navigation
 
-The project's goal is to convert messy, unstructured file data (such as total amount, date, vendor, and tax ID) into a clean, standardised object, ready for analysis and archiving. The data is formatted using specifications like **ISO 8601** for dates and decimal points for currency, ensuring seamless integration with other homelab tools.
-
----
-
-## 🎯 Primary Use Case
-
-The project enables the instant, automated logging of expenses simply by forwarding a photograph or document to a dedicated Telegram bot.
-
-1.  **Rapid Input:** A user forwards a photo or a PDF of a receipt to a **Telegram** bot.
-2.  **Validation & Storage:** The main workflow calculates the file hash (MD5 checksum), checks for duplicates against the Google Sheet, and archives the file in **Google Drive**.
-3.  **AI Data Extraction:** The main workflow then calls the **AI Vision Agent Sub-Workflow** to perform the heavy lifting of OCR and data parsing.
-4.  **Registration:** The sub-workflow returns the structured data, which the main workflow then logs to the **Google Sheet**.
-5.  **Confirmation:** The Telegram bot notifies the user of the successful registration.
-
-Screenshot ![Screenshot](images/telegram.screenshot.png)
+1.  **First Run Setup:** When you first access your n8n instance (e.g., `http://localhost:5678`), you'll need to set up your owner account.
+    ![Set up owner](images/n8n_01.jpg)
+2.  **Access the Workflows:** Once logged in, click on the **Credentials** tab from the top menu or the sidebar navigation.
+    ![Credentials](images/n8n_03.credentials.jpg)
+3.  **Add New Credential:** Click **Add first credential** or **Create Workflow** to start the process.
 
 ---
 
-## ⚙️ Workflow Architecture Overview
+## 1. Telegram API (Input Trigger)
 
-### Sequence Diagram
+This credential allows the main workflow to listen for messages and send confirmation responses.
 
-![InvoiceBillScan Sequence Diagram](images/sequenceDiagram.invoiceBillScan.png)
+1.  **Select Service:** In the **Add new credential** dialog, search for and select **Telegram API**.
+    ![Telegram](images/n8n_04.credentials.Telegram.jpg)
+2.  **Fill Details:** You will need the **Access Token** obtained from BotFather in Telegram.
+    * **Access Token:** Enter the token for your dedicated receipt bot.
+    * **Base URL:** The default (`https://api.telegram.org`) is usually correct.
+    ![Telegram2](images/n8n_06.credentials.Telegram.jpg)
+3.  **Save:** Click **Save**.
 
-The solution consists of two key n8n workflows:
-
-### 1. Main Workflow (Ingestion and Archival)7
-
-![InvoiceBillScan Workflow Diagram](images/invoiceBillScan.n8n.jpg)
-
-The main flow (**invoiceBillScan**) handles the Telegram trigger, calculates the file hash, checks for duplicates against the Google Sheet, archives the file in Google Drive, and finally, saves the structured output back to the Google Sheet.
-
-
-
-### 2. AI Vision Agent Sub-Workflow (`retrieveImageFlow`)
-This specialised sub-workflow is executed by the main flow and focuses entirely on AI-powered data extraction.
-
-| Component | Function | Technology Used |
-| :--- | :--- | :--- |
-| **Trigger** | Activated by the main workflow, receiving the file ID and type (`image` or `document`). | `When Executed by Another Workflow` |
-| **File Retrieval** | Downloads the file from Google Drive using the received file ID. | `Google Drive` |
-| **Routing** | Uses a **Switch** node to route the file based on its type. | `Switch` |
-| **Image Analysis** | Sends image files (e.g., JPEG, PNG) to the **OpenAI Vision model** (`gpt-4o-mini`) along with a highly specific system prompt for structured JSON extraction. | `OpenAi` (Vision) |
-| **Document Analysis**| Sends PDF files to the **Google Gemini model** (`gemini-2.0-flash-lite`) along with the same system prompt for OCR and extraction. | `Google Gemini` |
-| **JSON Cleaning** | **Code** nodes clean the raw text output from the LLMs (removing Markdown backticks) before parsing it into a clean JSON object, which is then returned to the main workflow. | `Code` (JavaScript) |
+* **Telegram Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.telegram/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.telegram/)
 
 ---
 
-## 🚀 Pre-requisites
+## 2. Google Drive OAuth2 API (File Archival)
 
-To successfully deploy and utilise this workflow, you will require the following components and configurations within your n8n instance:
+This credential is used by **both workflows** to save the incoming file and download it for AI analysis.
 
-### 1. N8n Nodes and External Services
-| Service | Configuration Notes |
+1.  **Select Service:** Search for and select **Google Drive OAuth2 API**.
+    ![Google Drive](images/n8n_05.credentials.GDrive.jpg)
+2.  **Configure OAuth:** This requires setting up an application in the Google Cloud Console to get the Client ID and Client Secret.
+    * **OAuth Redirect URL:** Note the URL provided by n8n (e.g., `http://localhost:5678/rest/oauth2-credential/callback`). You must register this exact URL in the Google Console under your application's **Authorised redirect URIs**.
+    * **Client ID & Client Secret:** Paste the credentials you obtained from Google Console.
+    ![Google Drive Oauth](images/n8n_07.credentials.GDrive.jpg)
+3.  **Connect Account:** After saving, click the **Connect** button to log into your Google Account and grant n8n access to Google Drive.
+
+* **Google Drive Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-drive/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-drive/)
+
+---
+
+## 3. Data Table (Ledger Database)
+
+The structured output of the AI Vision Agent is now registered in a dedicated n8n Data Table (instead of a Google Sheet) [Conversation History]. You must configure this Data Table to contain the following exact column headers to ensure the workflows correctly map and write the data
+![Data Table](images/n8n_12.DateTable.jpg)
+
+* **n8n Data Tables Documentation:** [https://docs.n8n.io/data/data-tables/](https://docs.n8n.io/data/data-tables/)
+
+---
+
+## 4. OpenAI (Image Analysis)
+
+This is used by the **Sub-Workflow** (`retrieveImageFlow`) for image analysis via the GPT-4o-mini Vision model.
+
+1.  **Select Service:** Search for and select **OpenAI**.
+2.  **Fill Details:**
+    * **API Key:** Paste your OpenAI API Key.
+    * **Base URL:** The default (`https://api.openai.com/v1`) is usually correct.
+    ![OpenAI](images/n8n_09.credentials.OpenAI.jpg)
+3.  **Save:** Click **Save**.
+
+* **OpenAI Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.open-ai/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.open-ai/)
+
+---
+
+## 5. Google Gemini (Document Analysis)
+
+This is used by the **Sub-Workflow** (`retrieveImageFlow`) for PDF/document analysis.
+
+1.  **Select Service:** Search for and select **Google Gemini (PaLM) API**.
+2.  **Fill Details:**
+    * **Host:** The default (`https://generativelanguage.googleapis.com`) is typically correct.
+    * **API Key:** Paste your Google Gemini API Key.
+    ![Gemini](images/n8n_10.credentials.Gemini.jpg)
+3.  **Save:** Click **Save**.
+
+* **Google Gemini Documentation:** [https://docs.n8n.io/integrations/builtin/credentials/deepseek/](https://docs.n8n.io/integrations/builtin/credentials/deepseek/)
+
+## 6. DeepSeek (Chat model)
+
+This is used by the chatbot.
+
+1.  **Select Service:** Search for and select **DeepSeek**.
+2.  **Fill Details:**
+    * **API Key:** Paste your DeepSeek API Key.
+    ![Gemini](images/n8n_11.credentials.DeepSeek.jpg)
+3.  **Save:** Click **Save**.
+
+* **DeepSeek Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/)
+
+## 6. Redis (Cache)
+
+This is used by the upload file.
+
+1.  **Select Service:** Search for and select **Redis**.
+    ![Redis](images/n8n_13.RedisCache.jpg)
+
+2.  **Fill Details:**
+    * **Password:** Paste your password.
+    * **User:** Redis user or Empty.
+    * **Host:** Host.
+    * **Port:** Port.
+3.  **Save:** Click **Save**.
+
+* **DeepSeek Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/)
+
+## 8. 🌐 Homelab Connectivity: Exposing n8n for Webhooks and OAuth
+
+For the Telegram **Webhook** and the Google **OAuth2** credentials (Drive and Sheets) to function, your n8n instance must be accessible from the public internet. Since you are running in a homelab, using a simple port forward is often insecure.
+
+Here are three secure, community-favourite alternatives for exposing internal services:
+
+### 1. Cloudflare Tunnels (Recommended for Domain Users) ☁️
+
+Cloudflare Tunnels (via the `cloudflared` daemon) establish a secure, outbound-only connection from your server to the Cloudflare network. This bypasses the need for opening firewall ports or port forwarding, requiring only a domain name managed by Cloudflare.
+
+| Pros | Cons |
 | :--- | :--- |
-| **n8n** | A functional n8n instance (self-hosted or cloud) with public access enabled for the Telegram webhook. |
-| **Telegram** | A dedicated **Telegram Bot** and the relevant **Chat ID** for submissions. |
-| **Google Drive** | **Google Drive OAuth2** credentials for file saving and downloading. |
-| **Google Sheets** | **Google Sheets OAuth2** credentials for reading/writing the ledger data. |
-| **OpenAI Account** | An active API key is required for the image processing path. | `OpenAi` |
-| **Google Gemini Account** | An active API key is required for the PDF processing path. | `Google Gemini` |
+| **Security:** No open inbound ports on your router. | Requires a domain name (can be cheap). |
+| **Reliability:** Leverages Cloudflare's global network and caching. | Requires the `cloudflared` binary or Docker container setup. |
 
-## 🚀 Running n8n with Docker
+**Setup Reference:**
+* **Cloudflare Tunnels Documentation:** [https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/)
 
-Since this project is designed for a **homelab**, using Docker is the recommended way to deploy n8n securely and reliably.
+### 2. Pangolin or Self-Hosted Reverse Proxy (For Full Control) 🏠
 
-### Basic Docker Setup
+For homelab users who prefer managing their public endpoint entirely within their network, a **Reverse Proxy** solution is ideal. While **Pangolin** is a viable, simple tunneling service often mentioned in the homelab community, solutions like **Traefik** or **Nginx Proxy Manager (NPM)** are the most common ways to manage external access when you own a domain and have ports open on your router.
 
-To quickly get n8n running, you can use the official Docker image. This command launches n8n on port `5678` with persistent data storage.
+| Pros | Cons |
+| :--- | :--- |
+| **Control:** Full management of SSL certificates and access rules. | Requires opening ports (443/80) on your router. |
+| **Performance:** Excellent internal network performance. | More complex initial configuration (setting up certificates, internal networks). |
+
+**Setup Reference (General Reverse Proxy):**
+* **Nginx Proxy Manager:** [https://nginxproxymanager.com/](https://nginxproxymanager.com/)
+* **Traefik Reverse Proxy:** [https://doc.traefik.io/traefik/](https://doc.traefik.io/traefik/)
+
+### 3. ngrok or Tailscale Funnel (Quick and Temporary) 🧪
+
+Services like **ngrok** and features like **Tailscale Funnel** create a temporary public URL that tunnels traffic directly to your local application. These are excellent for initial testing, debugging, or setups where a permanent domain is not desired.
+
+**Setup Reference:**
+* **Tailscale Funnel Documentation:** [https://tailscale.com/kb/1223/funnel/](https://tailscale.com/kb/1223/funnel/)
+* **ngrok Documentation:** [https://ngrok.com/docs](https://ngrok.com/docs)
+
+***
+
+### Configuration Reminder
+
+Regardless of the method chosen, you must correctly set the following environment variables in your n8n Docker setup and use the public URL in your Telegram and Google OAuth configurations:
 
 ```bash
-docker run -it --rm \
-    --name n8n \
-    -p 5678:5678 \
-    -v ~/.n8n:/home/node/.n8n \
-    n8nio/n8n
-```
-
----
-## 💾 Quick Guide: How to Import the Workflows
-
-Since this project consists of two linked workflows, you must import them both and ensure the main flow is linked correctly to the sub-flow.
-
-### Steps to Import n8n workflows
-
-1.  **Open n8n:** Navigate to your running n8n instance (e.g., `http://localhost:5678`).
-2.  **Access the Workflows:** In the left sidebar, click on **Workflows**.
-3.  **Import the Files:**
-    * Click the **New** button, then select **Import from File**.
-    * First, upload the **Main Workflow** (`invoiceBillScan.json`).
-    * Repeat the process and upload the **Sub-Workflow** (`retrieveImageFlow.json`).
-4.  **Activate the Sub-Workflow:** Go to the `retrieveImageFlow` (Sub-Workflow) and click the **Activate** toggle in the top right corner. **This workflow must be active** for the main flow to call it.
-5.  **Update the Main Workflow Link (Crucial Step):**
-    * Open the `invoiceBillScan` (Main Workflow).
-    * Locate the two **Execute Workflow** nodes:
-        * `Analyze image Sub-Workflow`
-        * `Analyze document Sub-Workflow`
-    * For **both** nodes, open the settings and verify that the **Workflow** selection points to the newly imported `retrieveImageFlow`.
-6.  **Configure Credentials:** Update all nodes that require credentials (Telegram, Google Drive, Google Sheets, OpenAI, Google Gemini) using your specific homelab credentials.
-For detailed configuration instructions, please see the **Setup Guide** file: [Configuration Steps](setup.md)
-7.  **Activate the Main Workflow:** Once configurations are complete, click the **Activate** toggle for the `invoiceBillScan` workflow. Your Telegram webhook should now be active.
-
-### 2. Required Data Schema
-
-* **Google Drive:** A specific target folder is needed for file storage.
-* **Google Sheets:** The target spreadsheet must contain the following exact column headers to successfully map the workflow output. **Strict adherence to column names is required.**
-
-## 📝 Google Sheets Ledger Schema Description
-
-Here is the description for each column in your Google Sheets ledger, detailing its purpose, source, and expected format. This schema is essential for the n8n workflows to correctly read and write data.
-
-| Column Name | Description | Source | Format |
-| :--- | :--- | :--- | :--- |
-| **ID** | A unique numerical identifier assigned sequentially to each row upon entry into the Sheet. | Google Sheets | Integer |
-| **checksum** | An **MD5 hash** of the uploaded file (image or document). This value is used by the workflow to prevent duplicate entries of the same receipt. | n8n Flow | String (32-character MD5) |
-| **filename** | The original name of the file uploaded via Telegram (e.g., `IMG_1234.jpg`). | n8n Flow | String |
-| **user** | The Telegram username or unique ID of the person who submitted the receipt. Useful for tracking expenses in multi-user setups. | Telegram | String |
-| **data** | A column reserved for raw, unstructured data or internal debugging JSON if needed, though usually left empty in final design. | n8n Flow | String/JSON |
-| **URL** | The permanent **public link** to the archived file (image or PDF) in Google Drive. | Google Drive | URL |
-| **thumbnail** | The permanent link to the generated **image thumbnail** of the receipt (only available for image files). | Telegram/n8n Flow | URL |
-| **type** | The file type of the submission, used for routing and MD5 calculation (`image` or `document`). | n8n Flow | String |
-| **importe\_total** | The final, total monetary value of the purchase, extracted by the AI agent, using a decimal point and no currency symbol. | AI Vision Agent | String (Decimal, e.g., `45.99`) |
-| **fecha\_hora** | The date and time of the transaction, extracted by the AI agent. | AI Vision Agent | String (ISO 8601, e.g., `YYYY-MM-DDTHH:MM:SSZ`) |
-| **entidad\_tienda** | The **name of the store or business** that issued the receipt or invoice. | AI Vision Agent | String |
-| **identificador\_fiscal** | The legal **tax identification number** of the business (e.g., NIF, CIF, VAT ID), extracted by the AI agent (only the identifier, not the prefix). | AI Vision Agent | String |
-| **categoria\_clasificacion** | The general classification or **category of the expense** (e.g., 'Groceries', 'Utilities', 'Electronics'), inferred from the receipt's line items. | AI Vision Agent | String |
-| **resumen\_compra** | A short **summary** (1-2 sentences) of the content or purpose of the purchase. | AI Vision Agent | String |
-
-
-
-
----
-## 🙌 Community & Contribution
-
-**InvoiceBillScan** is a **homelab project** built by the community, for the community. Whether you're a seasoned developer, an n8n power user, or just someone looking to fix a bug in a specific scenario (like a tricky VAT ID format!), your input is invaluable.
-
-### Why Contribute?
-
-* **Improve AI Robustness:** Help us refine the system prompts to better handle diverse receipt formats from different countries and vendors.
-* **Expand Integrations:** Want to save data to InfluxDB, Home Assistant, or PostgreSQL instead of Google Sheets? Raise a **Feature Request**!
-* **Refine the Flow:** Suggest optimisations for the MD5 checksum or the file routing logic.
-
-### How to Participate
-
-1.  **Report Bugs:** If you find an issue, please open a detailed issue report. Include relevant error logs from your n8n execution history.
-2.  **Suggest Features:** Have an idea for a new feature? Open an issue tagged as `enhancement`.
-3.  **Contribute Code (Pull Requests):**
-
-
-We look forward to seeing how you adapt this automation for your unique homelab setup! 🚀
-
-
-
----
-## 🙏 Acknowledgements
-
-This project was inspired and made possible by the ideas, support, and great content from the community.
-
-A special thank you to:
-
-* **[NetworkChuck](https://github.com/theNetworkChuck)**  for the homelab inspiration and motivational content that sparked this automation idea: [https://www.youtube.com/watch?v=budTmdQfXYU](https://www.youtube.com/watch?v=budTmdQfXYU).
-* My family for providing ideas, testing scenarios, and constant support throughout the development process.
+# Example if using a domain with a Reverse Proxy
+WEBHOOK_URL=[https://n8n.yourdomain.com](https://n8n.yourdomain.com) 
+N8N_HOST=n8n.yourdomain.com

@@ -1,0 +1,65 @@
+@startuml
+participant User
+participant "Telegram Trigger" as TT
+participant "Message Switch" as MS
+participant "IsRelatedWithInvoiceBill" as IRWIB
+participant "FinancialPrompt?" as FP
+participant "AI invoiceBillScan Agent" as AI
+participant "GetDataTable" as DT
+participant "ReplyTelegram" as RT
+participant "New Feature" as NF
+participant "Stop and Error" as SE
+
+title n8n Chatbot Flow - Text Messages
+
+== Main Flow (Financial Message) ==
+
+User -> TT: Text Message
+note right: User sends expense/invoice query
+
+TT -> MS: Process message
+note right: Webhook receives the message
+
+MS -> MS: Evaluate message type
+note right: Condition: !!$json.message.text = true
+
+MS -> IRWIB: Text message detected
+note right: "text" branch from Switch
+
+IRWIB -> IRWIB: Classify prompt with DeepSeek
+note right: "Is it related to invoices/finances?"
+
+IRWIB -> FP: Result TRUE/FALSE
+note right: Classification response
+
+alt Message related to finances
+    FP -> AI: content = "TRUE"
+    note right: Condition: $json.message.content === "TRUE"
+    
+    AI -> DT: Query financial data
+    note right: Tool: GetDataTable
+    
+    DT -> AI: Return transaction data
+    note right: Array of invoices/receipts
+    
+    AI -> AI: Process with DeepSeek
+    note right: Analyse data and generate response
+    
+    AI -> RT: Output with AI response
+    note right: Personalised response
+    
+    RT -> User: Message with financial analysis
+    note right: Response sent to Telegram
+
+else Message NOT related to finances
+    FP -> NF: content = "FALSE"
+    note right: Message is not financial
+    
+    NF -> SE: "Funcionalitat pendent"
+    note right: Pending functionality message
+    
+    SE -> User: Error + Original message
+    note right: "Missatge desconegut. missatge rebut: {text}"
+end
+
+@enduml

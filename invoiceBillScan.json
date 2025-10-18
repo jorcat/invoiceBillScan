@@ -14,12 +14,12 @@
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1.2,
       "position": [
-        -704,
+        -1040,
         -224
       ],
-      "id": "c1af6952-a8d1-49a5-ba38-d708c73c5a27",
+      "id": "4eaab10a-e1e2-4666-a826-7eb76887a907",
       "name": "Telegram Trigger",
-      "webhookId": "410f456d-2e51-417f-896d-46028192e8eb",
+      "webhookId": "d0d16064-c7f9-4fef-9466-ee654eb80253",
       "credentials": {
         "telegramApi": {
           "id": "tGC4iHSUYUtagG68",
@@ -116,10 +116,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -480,
+        -272,
         -240
       ],
-      "id": "fef60fc5-3919-497c-8033-861f57f20598",
+      "id": "91c0533b-fdf7-44e3-847e-1d8416f1aba7",
       "name": "Message Switch"
     },
     {
@@ -128,25 +128,23 @@
         "name": "={{ $('Telegram Trigger').item.json.message.from.first_name }}_{{ $('Telegram Trigger').item.json.message.date }}",
         "driveId": {
           "__rl": true,
-          "mode": "list",
-          "value": "My Drive"
+          "value": "={{$('GetParams').all().filter(item => item.json.param == 'parentDrive').first().json.value }}",
+          "mode": "id"
         },
         "folderId": {
           "__rl": true,
-          "value": "1txDVdst-z7tSBsWrafOgn27katWaPe_p",
-          "mode": "list",
-          "cachedResultName": "rebutLabeler",
-          "cachedResultUrl": "https://drive.google.com/drive/folders/1txDVdst-z7tSBsWrafOgn27katWaPe_p"
+          "value": "={{$('GetParams').all().filter(item => item.json.param == 'parentFolder').first().json.value }}",
+          "mode": "id"
         },
         "options": {}
       },
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        848,
+        1072,
         -416
       ],
-      "id": "4a2aef26-7d6b-4bb0-a56f-6e2bb17aab17",
+      "id": "c89024e7-011f-4755-956d-c56d43047151",
       "name": "Save file in GDrive",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
@@ -165,205 +163,12 @@
       "type": "n8n-nodes-base.crypto",
       "typeVersion": 1,
       "position": [
-        -48,
+        160,
         -224
       ],
-      "id": "c06c14e2-5d53-45e9-8c1e-6450c1c6d42c",
+      "id": "774adab2-a091-41c1-8c0c-1e11f7b94205",
       "name": "Hash to MD5",
       "alwaysOutputData": false
-    },
-    {
-      "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1MvZrNBQvYgX1_cBeB95tb1-fGj8veLP7MZMI6oov9IA/",
-          "mode": "url"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Full 1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MvZrNBQvYgX1_cBeB95tb1-fGj8veLP7MZMI6oov9IA/edit#gid=0"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "ID": "={{ $('Save file in GDrive').item.json.id }}",
-            "checksum": "={{ $('Save file in GDrive').item.json.md5Checksum }}",
-            "filename": "={{ $('Save file in GDrive').item.json.name }}",
-            "user": "={{ $('Message Switch').item.json.message.from.first_name }}",
-            "data": "={{ new Date().toISOString() }}",
-            "URL": "={{ $('Save file in GDrive').item.json.webContentLink }}",
-            "thumbnail": "={{ $('Save file in GDrive').item.json.thumbnailLink }}",
-            "type": "image",
-            "importe_total": "={{ $json.importe_total }}",
-            "fecha_hora": "={{ $json.fecha_hora }}",
-            "entidad_tienda": "={{ $json.entidad_tienda }}",
-            "identificador_fiscal": "={{ $json.identificador_fiscal }}",
-            "categoria_clasificacion": "={{ $json.categoria_clasificacion }}",
-            "resumen_compra": "={{ $json.resumen_compra }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "ID",
-              "displayName": "ID",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "type",
-              "displayName": "type",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "checksum",
-              "displayName": "checksum",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "filename",
-              "displayName": "filename",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "user",
-              "displayName": "user",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "data",
-              "displayName": "data",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "URL",
-              "displayName": "URL",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "thumbnail",
-              "displayName": "thumbnail",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "importe_total",
-              "displayName": "importe_total",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "fecha_hora",
-              "displayName": "fecha_hora",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "entidad_tienda",
-              "displayName": "entidad_tienda",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "identificador_fiscal",
-              "displayName": "identificador_fiscal",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "categoria_clasificacion",
-              "displayName": "categoria_clasificacion",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "resumen_compra",
-              "displayName": "resumen_compra",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        1264,
-        -416
-      ],
-      "id": "72837ff0-e9cd-45ec-8ff0-2d1119f9a743",
-      "name": "Append row in sheet",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "9of6Qum5n01dsoOL",
-          "name": "Google Sheets account"
-        }
-      }
     },
     {
       "parameters": {
@@ -373,10 +178,10 @@
       "type": "n8n-nodes-base.crypto",
       "typeVersion": 1,
       "position": [
-        -48,
+        160,
         -16
       ],
-      "id": "a3921946-a852-4a05-b564-014fdfea3a96",
+      "id": "57a4eaa4-c3d4-453c-9d44-ee9454f6f884",
       "name": "Hash PDF to MD5",
       "alwaysOutputData": false
     },
@@ -386,25 +191,23 @@
         "name": "={{ $('Telegram Trigger').item.json.message.from.first_name }}_{{ $('Telegram Trigger').item.json.message.date }}",
         "driveId": {
           "__rl": true,
-          "mode": "list",
-          "value": "My Drive"
+          "value": "={{$('GetParams').all().filter(item => item.json.param == 'parentDrive').first().json.value }}",
+          "mode": "id"
         },
         "folderId": {
           "__rl": true,
-          "value": "1txDVdst-z7tSBsWrafOgn27katWaPe_p",
-          "mode": "list",
-          "cachedResultName": "rebutLabeler",
-          "cachedResultUrl": "https://drive.google.com/drive/folders/1txDVdst-z7tSBsWrafOgn27katWaPe_p"
+          "value": "={{$('GetParams').all().filter(item => item.json.param == 'parentFolder').first().json.value }}",
+          "mode": "id"
         },
         "options": {}
       },
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        864,
+        1072,
         96
       ],
-      "id": "7c1e3e45-210a-4a9f-8ebc-0c27ae753b24",
+      "id": "526e19d0-a3d6-4ebd-b453-1a3c81438173",
       "name": "Save doc file in GDrive",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
@@ -417,325 +220,37 @@
     },
     {
       "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1MvZrNBQvYgX1_cBeB95tb1-fGj8veLP7MZMI6oov9IA/",
-          "mode": "url"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Full 1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MvZrNBQvYgX1_cBeB95tb1-fGj8veLP7MZMI6oov9IA/edit#gid=0"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "ID": "={{ $('Save doc file in GDrive').item.json.id }}",
-            "checksum": "={{ $('Save doc file in GDrive').item.json.md5Checksum }}",
-            "filename": "={{ $('Save doc file in GDrive').item.json.name }}",
-            "user": "={{ $('Message Switch').item.json.message.from.first_name }}",
-            "data": "={{ new Date().toISOString() }}",
-            "URL": "={{ $('Save doc file in GDrive').item.json.webContentLink }}",
-            "type": "document",
-            "importe_total": "={{ $json.importe_total }}",
-            "fecha_hora": "={{ $json.fecha_hora }}",
-            "entidad_tienda": "={{ $json.entidad_tienda }}",
-            "identificador_fiscal": "={{ $json.identificador_fiscal }}",
-            "categoria_clasificacion": "={{ $json.categoria_clasificacion }}",
-            "resumen_compra": "={{ $json.resumen_compra }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "ID",
-              "displayName": "ID",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "type",
-              "displayName": "type",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "checksum",
-              "displayName": "checksum",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "filename",
-              "displayName": "filename",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "user",
-              "displayName": "user",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "data",
-              "displayName": "data",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "URL",
-              "displayName": "URL",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "thumbnail",
-              "displayName": "thumbnail",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": true
-            },
-            {
-              "id": "importe_total",
-              "displayName": "importe_total",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "fecha_hora",
-              "displayName": "fecha_hora",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "entidad_tienda",
-              "displayName": "entidad_tienda",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "identificador_fiscal",
-              "displayName": "identificador_fiscal",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "categoria_clasificacion",
-              "displayName": "categoria_clasificacion",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "resumen_compra",
-              "displayName": "resumen_compra",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        1280,
-        96
-      ],
-      "id": "852752be-9ffa-4394-afbe-c17d496d6948",
-      "name": "Append doc row in sheet",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "9of6Qum5n01dsoOL",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "errorMessage": "=Missatge desconegut. missatge rebut: {{ $('Telegram Trigger').item.json.message.text }}"
       },
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
       "position": [
-        112,
-        -448
+        656,
+        -608
       ],
-      "id": "18919f0f-54a3-49cb-8fb4-a66ecf6be470",
+      "id": "9b9aa53c-ecc4-4137-85b2-962fdfeaaf87",
       "name": "Stop and Error",
       "retryOnFail": true
     },
     {
       "parameters": {
-        "chatId": "-1002908887184",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
         "text": "=Funcionalitat pendent",
         "additionalFields": {}
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        -112,
-        -448
+        528,
+        -608
       ],
-      "id": "daaa956e-1fdb-44f8-ad1f-d7224d59b273",
+      "id": "522a54ce-da88-46a1-b415-6d8cc3127509",
       "name": "New feature",
-      "webhookId": "29a7975e-dcdc-420f-aced-123e7f7b63f5",
+      "webhookId": "a1c472ee-808e-4599-9669-55178afe0fa8",
       "credentials": {
         "telegramApi": {
           "id": "tGC4iHSUYUtagG68",
           "name": "Telegram rebutLabeler_bot account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1MvZrNBQvYgX1_cBeB95tb1-fGj8veLP7MZMI6oov9IA/",
-          "mode": "url"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Full 1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MvZrNBQvYgX1_cBeB95tb1-fGj8veLP7MZMI6oov9IA/edit#gid=0"
-        },
-        "filtersUI": {
-          "values": [
-            {
-              "lookupColumn": "checksum",
-              "lookupValue": "={{ $json.md5_checksum }}"
-            },
-            {
-              "lookupColumn": "type",
-              "lookupValue": "image"
-            }
-          ]
-        },
-        "options": {
-          "returnFirstMatch": true
-        }
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        160,
-        -224
-      ],
-      "id": "0ccb9eab-a030-4010-be96-fbf8820264fb",
-      "name": "Search image by MD5",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "alwaysOutputData": true,
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "9of6Qum5n01dsoOL",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1MvZrNBQvYgX1_cBeB95tb1-fGj8veLP7MZMI6oov9IA/",
-          "mode": "url"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Full 1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MvZrNBQvYgX1_cBeB95tb1-fGj8veLP7MZMI6oov9IA/edit#gid=0"
-        },
-        "filtersUI": {
-          "values": [
-            {
-              "lookupColumn": "checksum",
-              "lookupValue": "={{ $json.md5_checksum }}"
-            },
-            {
-              "lookupColumn": "type",
-              "lookupValue": "document"
-            }
-          ]
-        },
-        "options": {
-          "returnFirstMatch": true
-        }
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        160,
-        -16
-      ],
-      "id": "c24dbde7-9a1d-4948-ad45-2a19464699c0",
-      "name": "Search doc by MD5",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "alwaysOutputData": true,
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "9of6Qum5n01dsoOL",
-          "name": "Google Sheets account"
         }
       }
     },
@@ -751,11 +266,11 @@
           "conditions": [
             {
               "id": "510af1dd-eb70-4bdb-a766-896c5baac8b5",
-              "leftValue": "={{ $json }}",
+              "leftValue": "={{ $json.storedValue === null }}",
               "rightValue": "",
               "operator": {
-                "type": "object",
-                "operation": "empty",
+                "type": "boolean",
+                "operation": "true",
                 "singleValue": true
               }
             }
@@ -767,10 +282,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        368,
+        560,
         -224
       ],
-      "id": "319e81f2-3aae-41ba-9847-4461ccc2c06b",
+      "id": "bc98b565-f7d7-473f-a463-9834683b6ba3",
       "name": "New Image?"
     },
     {
@@ -785,65 +300,44 @@
           "conditions": [
             {
               "id": "510af1dd-eb70-4bdb-a766-896c5baac8b5",
-              "leftValue": "={{ $json }}",
+              "leftValue": "={{ $json.storedValue === null }}",
               "rightValue": "",
               "operator": {
-                "type": "object",
-                "operation": "empty",
+                "type": "boolean",
+                "operation": "true",
                 "singleValue": true
               }
             }
           ],
-          "combinator": "and"
+          "combinator": "or"
         },
+        "looseTypeValidation": true,
         "options": {}
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        368,
+        576,
         -16
       ],
-      "id": "da6e7f6a-f60c-4eb7-a0b4-f2d41f2b2c63",
+      "id": "e0f11a84-1e47-4127-bfa3-9192fe001621",
       "name": "New document?"
     },
     {
       "parameters": {
-        "chatId": "-1002908887184",
-        "text": "=Rebut ja existent, pujat per  {{ $('Search image by MD5').item.json.user }} el dia {{ $('Search image by MD5').item.json.data }}",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Rebut ja existent, pujat per {{ $json.storedValue.user }} el dia {{ $json.storedValue.data }}",
         "additionalFields": {}
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        656,
-        -160
+        880,
+        -128
       ],
-      "id": "d349b5f4-3120-4128-b117-8911e3b32fbe",
+      "id": "9a83f54a-2fb5-4231-9521-327a0819a101",
       "name": "Already exists",
-      "webhookId": "29a7975e-dcdc-420f-aced-123e7f7b63f5",
-      "credentials": {
-        "telegramApi": {
-          "id": "tGC4iHSUYUtagG68",
-          "name": "Telegram rebutLabeler_bot account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "chatId": "-1002908887184",
-        "text": "=Rebut ja existent, pujat per {{ $('Search doc by MD5').item.json.user }}  el dia {{ $('Search doc by MD5').item.json.data }}",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        672,
-        304
-      ],
-      "id": "9ffb3df7-ff50-404b-9855-0bda1f110c34",
-      "name": "Doc already exists",
-      "webhookId": "29a7975e-dcdc-420f-aced-123e7f7b63f5",
+      "webhookId": "383039f0-cae3-4810-9048-31a1e421c4e0",
       "credentials": {
         "telegramApi": {
           "id": "tGC4iHSUYUtagG68",
@@ -859,10 +353,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        640,
+        848,
         96
       ],
-      "id": "9fc5f43f-3a27-4e65-8767-a7fc47e9b9ca",
+      "id": "fb5b3c75-8866-4221-b1e3-fdfc6c232291",
       "name": "Wait document"
     },
     {
@@ -872,10 +366,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        624,
+        848,
         -416
       ],
-      "id": "fa85cc4e-3525-4ba4-8911-4710f6d52a96",
+      "id": "54474c2b-c568-45e1-b0b9-d35e72d0e644",
       "name": "Wait image"
     },
     {
@@ -923,10 +417,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1056,
+        1280,
         -416
       ],
-      "id": "865c2712-1eef-4fe9-b77d-8053f440b80d",
+      "id": "26be695a-0053-4564-aa9e-56628576ff43",
       "name": "Analyze image Sub-Workflow",
       "retryOnFail": true
     },
@@ -936,6 +430,7 @@
           "__rl": true,
           "value": "p46Bj0PkzWA5buhX",
           "mode": "list",
+          "cachedResultUrl": "/workflow/p46Bj0PkzWA5buhX",
           "cachedResultName": "retrieveImageFlow"
         },
         "workflowInputs": {
@@ -975,33 +470,17 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1072,
+        1280,
         96
       ],
-      "id": "692808a3-4438-425a-868a-55dc962fbf78",
+      "id": "1f9dce77-0b0c-4d50-b76b-156c63f2efaf",
       "name": "Analyze document Sub-Workflow",
       "retryOnFail": true
     },
     {
       "parameters": {
-        "content": "## To be developed\n**Add an AI Agent to seach in GDrive**\n",
-        "height": 240,
-        "width": 560,
-        "color": 4
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -288,
-        -528
-      ],
-      "typeVersion": 1,
-      "id": "7b937df5-4144-45dd-b852-8a003ad94903",
-      "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "chatId": "-1002908887184",
-        "text": "=✅ Rebut/Factura (registrada correctament)[{{ $json.URL }}]\n\n\nImport: {{ $json.importe_total }} €\nEntitat/Tenda: {{ $json.entidad_tienda }}\nCategoria: {{ $json.categoria_clasificacion }}\n\nDetall: {{ $json.resumen_compra }}\nData: {{ $json.fecha_hora }}\nTYPE: {{ $json.type }}\n",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=✅ Rebut/Factura (registrada correctament)[{{ $json.URL }}]\n\n\nImport: {{ $json.importe_total }} €\nEntitat/Tenda: {{ $json.entidad_tienda }}\nCategoria: {{ $json.categoria }}\n\nDetall: {{ $json.resumen }}\nData: {{ $json.fecha_hora }}\nTYPE: {{ $json.type }}\n",
         "additionalFields": {
           "reply_to_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}"
         }
@@ -1009,12 +488,12 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1568,
-        -144
+        2480,
+        -128
       ],
-      "id": "86c7e4fd-2295-4fba-b70b-c5559a1d0131",
+      "id": "166f8b4c-bf2e-4272-a188-32da59746dd1",
       "name": "Success Message",
-      "webhookId": "29a7975e-dcdc-420f-aced-123e7f7b63f5",
+      "webhookId": "acd53c8a-b943-4b42-b8ac-848d7580dbce",
       "credentials": {
         "telegramApi": {
           "id": "tGC4iHSUYUtagG68",
@@ -1035,14 +514,14 @@
         -288
       ],
       "typeVersion": 1,
-      "id": "f6b74fc6-2079-42fb-b8ea-b85be5ec97ef",
+      "id": "3b186ad8-098b-4996-bfe3-a8a6a15939bc",
       "name": "Sticky Note1"
     },
     {
       "parameters": {
         "content": "## Image flow\n",
-        "height": 464,
-        "width": 880,
+        "height": 336,
+        "width": 1184,
         "color": 7
       },
       "type": "n8n-nodes-base.stickyNote",
@@ -1051,14 +530,14 @@
         -480
       ],
       "typeVersion": 1,
-      "id": "ac43085c-2e74-4813-b944-857fb39c5aa5",
+      "id": "28db78e9-39fc-41e6-9559-9978811f7010",
       "name": "Sticky Note2"
     },
     {
       "parameters": {
         "content": "## Document flow",
         "height": 400,
-        "width": 896
+        "width": 1152
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
@@ -1066,8 +545,685 @@
         32
       ],
       "typeVersion": 1,
-      "id": "a730a855-d651-41c8-9e21-5c66761bf816",
+      "id": "48ca4a79-3f5d-4918-9168-0e7243ec890e",
       "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "062662f7-dd7c-4829-91aa-d1abecc4255e",
+              "leftValue": "={{ $json.categoria_clasificacion }}",
+              "rightValue": "UNKNOWN",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1472,
+        96
+      ],
+      "id": "64484fdc-f292-43b8-bebc-de37bffbaae8",
+      "name": "Valid document?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "062662f7-dd7c-4829-91aa-d1abecc4255e",
+              "leftValue": "={{ $json.categoria_clasificacion }}",
+              "rightValue": "UNKNOWN",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        -416
+      ],
+      "id": "b0aa9f6a-94a8-4b6d-8a40-701b47c56983",
+      "name": "Valid image?"
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Save file in GDrive').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1648,
+        -272
+      ],
+      "id": "ff8d1919-0a82-4b9d-9573-dd81c9078fec",
+      "name": "Delete image",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "i8ku3HFfWzBrUNAh",
+          "name": "Google Drive rebutLabeler account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=ERROR: Rebut no valid",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        -272
+      ],
+      "id": "7cf331cb-faa8-4dcd-bdcd-28c8f0bc3293",
+      "name": "Invalid invoice image",
+      "webhookId": "307cdf84-c9af-477f-8416-6ce6bdf47541",
+      "credentials": {
+        "telegramApi": {
+          "id": "tGC4iHSUYUtagG68",
+          "name": "Telegram rebutLabeler_bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Save doc file in GDrive').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1648,
+        272
+      ],
+      "id": "12012179-d4d0-46a8-9f92-d526f0ec989b",
+      "name": "Delete doc file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "i8ku3HFfWzBrUNAh",
+          "name": "Google Drive rebutLabeler account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "{{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=ERROR: Rebut no valid",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        272
+      ],
+      "id": "353a62db-788b-44b0-bceb-e5bce44d9cd6",
+      "name": "Invalid doc invoice",
+      "webhookId": "200d42a2-6d66-4de3-9736-b27ea3559ad7",
+      "credentials": {
+        "telegramApi": {
+          "id": "tGC4iHSUYUtagG68",
+          "name": "Telegram rebutLabeler_bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n\"ID\": \"{{ $('Save file in GDrive').item.json.id }}\",\n\"checksum\": \"{{ $('Save file in GDrive').item.json.md5Checksum }}\",\n\"filename\": \"{{ $('Telegram Trigger').item.json.message.from.first_name }}_{{ $json.categoria_clasificacion }}_{{ $json.fecha_hora !== '?' ? $json.fecha_hora.slice(0,10) : (new Date()).toISOString().split('T')[0]}}.jpg\",\n\"user\": \"{{ $('Telegram Trigger').item.json.message.from.first_name }}\",\n\"data\": \"{{ new Date().toISOString() }}\",\n\"URL\": \"{{ $('Save file in GDrive').item.json.webContentLink }}\",\n\"thumbnail\": \"{{ $('Save file in GDrive').item.json.thumbnailLink }}\",\n\"type\": \"image\",\n\"importe_total\": \"{{ $json.importe_total }}\",\n\"fecha_hora\": \"{{ $json.fecha_hora !== '?' ? $json.fecha_hora : (new Date()).toISOString() }}\",\n\"entidad_tienda\": \"{{ $json.entidad_tienda }}\",\n\"identificador_fiscal\": \"{{ $json.identificador_fiscal }}\",\n\"categoria_clasificacion\": \"{{ $json.categoria_clasificacion }}\",\n\"resumen_compra\": \"{{ $json.resumen_compra }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1744,
+        -432
+      ],
+      "id": "3e17f815-ef81-43ad-8be4-9d31c20704ed",
+      "name": "SetImageData"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n\"ID\": \"{{ $('Save doc file in GDrive').item.json.id }}\",\n\"checksum\": \"{{ $('Save doc file in GDrive').item.json.md5Checksum }}\",\n\"filename\": \"{{ $('Telegram Trigger').item.json.message.from.first_name }}_{{ $json.categoria_clasificacion }}_{{ $json.fecha_hora !== '?' ? $json.fecha_hora.slice(0,10) : (new Date()).toISOString().split('T')[0]}}.pdf\",\n\"user\": \"{{ $('Telegram Trigger').item.json.message.from.first_name }}\",\n\"data\": \"{{ new Date().toISOString() }}\",\n\"URL\": \"{{ $('Save doc file in GDrive').item.json.webContentLink }}\",\n\"thumbnail\": \"\",\n\"type\": \"document\",\n\"importe_total\": \"{{ $json.importe_total }}\",\n\"fecha_hora\": \"{{ $json.fecha_hora !== '?' ? $json.fecha_hora : (new Date()).toISOString() }}\",\n\"entidad_tienda\": \"{{ $json.entidad_tienda }}\",\n\"identificador_fiscal\": \"{{ $json.identificador_fiscal }}\",\n\"categoria_clasificacion\": \"{{ $json.categoria_clasificacion }}\",\n\"resumen_compra\": \"{{ $json.resumen_compra }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1744,
+        96
+      ],
+      "id": "79362baf-e07a-4409-9ea6-a39ff26f7244",
+      "name": "SetDocData"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $json.checksum }}",
+        "value": "={{ $json }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2288,
+        -128
+      ],
+      "id": "8403c13d-9249-4ede-b1e5-ba24ec16dcf1",
+      "name": "setMD5Key_Redis",
+      "credentials": {
+        "redis": {
+          "id": "IvGzfXdu8e08fkhg",
+          "name": "Redis .30:6379 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "storedValue",
+        "key": "={{ $json.md5_checksum }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -224
+      ],
+      "id": "ab68fc7a-e3ef-42cf-98df-0e14ec236cbf",
+      "name": "GetMD5Image_Redis",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "redis": {
+          "id": "IvGzfXdu8e08fkhg",
+          "name": "Redis .30:6379 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "storedValue",
+        "key": "={{ $json.md5_checksum }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -16
+      ],
+      "id": "ae54c04b-0bbd-4a30-b441-3c37ed129511",
+      "name": "GetMD5Doc_Redis",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "redis": {
+          "id": "IvGzfXdu8e08fkhg",
+          "name": "Redis .30:6379 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Message Switch').item.json.message.text }}",
+        "options": {
+          "systemMessage": "## Agente de Consulta Financiera (System Prompt)\n\n**Rol:** Eres un **Analizador y Asistente de Consulta Financiera Experto**. Tu única fuente de conocimiento son los datos de recibos y facturas  proporcionados por la tool `GetDataTable`. Tu tarea es analizar, agregar y resumir esta información para responder a las preguntas del usuario.\n\n---\n\n### **Instrucciones de Datos y Formato**\n\n1.  **Fuente:** Analizarás un *array* de transacciones obtenido por tool `GetDataTable` . Las columnas clave que debes utilizar son: `importe_total`, `fecha_hora`, `entidad_tienda`, `categoria_clasificacion`, `resumen_compra`.\n2.  **Moneda:** Para todos los cálculos (sumas, promedios), utiliza el formato de moneda **EUR (€)** con dos decimales, separando miles con punto y decimales con coma (Ej: 1.250,50 €).\n3.  **Cita de Fuente:** Cuando menciones una transacción específica (ej. la más cara), cita el enlace directo del recibo usando la columna `URL`.\n\n---\n\n### **🚨 Reglas de Control de Errores y Respuesta (Estrictas)**\n\nDebes aplicar estas reglas de forma jerárquica. Tu objetivo es **nunca** responder con una alucinación o una respuesta basada en datos externos.\n\n#### **Regla E1: Fallo de Datos (Error Técnico o Input Vacío)**\n\nSi el `$input_data` está **vacío**, es **nulo**, o contiene un mensaje de error que indica que la lectura de la hoja falló (ej. \"Error al acceder al recurso\"):\n* **Acción:** Detener el análisis.\n* **Respuesta:** \"Lo siento, ha ocurrido un **fallo técnico** al intentar acceder a tu historial de transacciones. El problema podría ser temporal. Por favor, inténtalo de nuevo más tarde.\"\n\n#### **Regla E2: Pregunta Fuera de Alcance o Datos Insuficientes**\n\nSi el `$input_data` **contiene datos**, pero:\n1.  La pregunta del usuario no tiene relación con el ámbito financiero del ledger (ej. preguntas sobre geografía o clima).\n2.  No se encontraron registros que cumplan con los criterios de la consulta (ej. \"No hay gastos de 'Viajes' en 2024\").\n* **Acción:** Ignorar la pregunta o los criterios.\n* **Respuesta:** \"Mi función es analizar exclusivamente tu historial de gastos registrado. No puedo responder a preguntas sobre ese tema. Por favor, reformula tu consulta centrada en **montos, categorías o comercios**.\"\n\n#### **Regla R3: Respuesta de Éxito**\n\nSi la pregunta es válida y la información está disponible en el `$input_data`:\n* **Acción:** Procede al cálculo o a la búsqueda y presenta el resultado.\n\n---\n\n### **Ejemplo de Salida Exitosa**\n\n* **Pregunta:** ¿Cuánto gasté en 'Alimentación' en los últimos 30 días?\n* **Respuesta Esperada (Formato):** \"El gasto total en la categoría **Alimentación** en los últimos 30 días asciende a **450,75 €**. El recibo más reciente fue el 2025-10-01 en Tienda A: [Ver Factura](URL_RECIBO).\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        -928
+      ],
+      "id": "0eddf4bc-e700-40a2-a805-60da8f6bcfc7",
+      "name": "AI invoiceBillScan Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.from.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        -752
+      ],
+      "id": "5005e56a-7c68-40b3-baf3-a65e771c909b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "replyMarkup": "forceReply",
+        "forceReply": {},
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        -928
+      ],
+      "id": "a4953382-e2b1-4d41-85dd-0c70622c2e46",
+      "name": "ReplyTelegram",
+      "webhookId": "e25766f7-dbc6-4f50-aa67-4890e72f938c",
+      "credentials": {
+        "telegramApi": {
+          "id": "tGC4iHSUYUtagG68",
+          "name": "Telegram rebutLabeler_bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85406065-7815-47f2-ab62-3856e3fca4cd",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "TRUE",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        -768
+      ],
+      "id": "8a301325-2283-4778-8077-819345d9d653",
+      "name": "FinancialPrompt?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.ID_gDrive }}",
+          "mode": "id"
+        },
+        "newUpdatedFileName": "={{ $json.user }}_{{ $json.categoria }}_{{ $json.fecha_hora.slice(0,10) }}.{{ $json.type === 'image' ? 'jpg' : 'pdf'}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2272,
+        -288
+      ],
+      "id": "b29d3862-c80b-4569-bf17-03182f927ff6",
+      "name": "RenameFile",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "i8ku3HFfWzBrUNAh",
+          "name": "Google Drive rebutLabeler account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Chat bot\n**Ask question about existing bills ",
+        "height": 464,
+        "width": 1200,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        -944
+      ],
+      "typeVersion": 1,
+      "id": "03c886ac-6c1c-434d-abf9-19735ccc9762",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "MCfJlL7k7yVPVuNr",
+          "mode": "list",
+          "cachedResultName": "invoiceBillScanned_items",
+          "cachedResultUrl": "/projects/x4s2KV4qaug0GNOg/datatables/MCfJlL7k7yVPVuNr"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "importe_total": "={{ $json.importe_total }}",
+            "ID_gDrive": "={{ $json.ID }}",
+            "type": "={{ $json.type }}",
+            "checksum": "={{ $json.checksum }}",
+            "filename": "={{ $json.filename }}",
+            "user": "={{ $json.user }}",
+            "date": "={{ $json.data }}",
+            "URL": "={{ $json.URL }}",
+            "thumbnail": "={{ $json.thumbnail }}",
+            "fecha_hora": "={{ $json.fecha_hora }}",
+            "entidad_tienda": "={{ $json.entidad_tienda }}",
+            "identificador_fiscal": "={{ $json.identificador_fiscal }}",
+            "categoria": "={{ $json.categoria_clasificacion }}",
+            "resumen": "={{ $json.resumen_compra }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID_gDrive",
+              "displayName": "ID_gDrive",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "checksum",
+              "displayName": "checksum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "filename",
+              "displayName": "filename",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "user",
+              "displayName": "user",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "thumbnail",
+              "displayName": "thumbnail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "importe_total",
+              "displayName": "importe_total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "fecha_hora",
+              "displayName": "fecha_hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "entidad_tienda",
+              "displayName": "entidad_tienda",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "identificador_fiscal",
+              "displayName": "identificador_fiscal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "categoria",
+              "displayName": "categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "resumen",
+              "displayName": "resumen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        2064,
+        -128
+      ],
+      "id": "8fca62fe-132c-49d0-bec1-0cd36f6da3fb",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "MCfJlL7k7yVPVuNr",
+          "mode": "list",
+          "cachedResultName": "invoiceBillScanned_items",
+          "cachedResultUrl": "/projects/x4s2KV4qaug0GNOg/datatables/MCfJlL7k7yVPVuNr"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}"
+      },
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1,
+      "position": [
+        768,
+        -736
+      ],
+      "id": "b33b5a9e-6e99-4bca-90ab-c399d7613736",
+      "name": "GetDataTable"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "CKAnVpVdudAP1CE3",
+          "mode": "list",
+          "cachedResultName": "invoiceBillScan.params",
+          "cachedResultUrl": "/projects/x4s2KV4qaug0GNOg/datatables/CKAnVpVdudAP1CE3"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        -368
+      ],
+      "id": "d4675485-6288-4908-8d27-4fc100e03d08",
+      "name": "GetParams"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -608
+      ],
+      "id": "ddea19ed-112f-4756-b756-0d9220c521b2",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "TuozCkHAbDlEJnXs",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Indica solo si el prompt esta relacionado con facturas, albaranes, recibos, finanzas, totales, medias, pagos o gastos financieros. Responde EXCLUSIVAMENTE con: TRUE en caso afirmativo, o FALSE en caso negativo"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -48,
+        -768
+      ],
+      "id": "4255235c-cee1-4c48-9dff-481350947b88",
+      "name": "IsRelatedWithInvoice"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -768
+      ],
+      "id": "1760530d-0edb-429d-89f8-74bb803abbcf",
+      "name": "DeepSeek",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "TuozCkHAbDlEJnXs",
+          "name": "DeepSeek account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -1075,6 +1231,11 @@
     "Telegram Trigger": {
       "main": [
         [
+          {
+            "node": "GetParams",
+            "type": "main",
+            "index": 0
+          },
           {
             "node": "Message Switch",
             "type": "main",
@@ -1087,7 +1248,7 @@
       "main": [
         [
           {
-            "node": "New feature",
+            "node": "IsRelatedWithInvoice",
             "type": "main",
             "index": 0
           }
@@ -1122,7 +1283,7 @@
       "main": [
         [
           {
-            "node": "Search image by MD5",
+            "node": "GetMD5Image_Redis",
             "type": "main",
             "index": 0
           }
@@ -1144,7 +1305,7 @@
       "main": [
         [
           {
-            "node": "Search doc by MD5",
+            "node": "GetMD5Doc_Redis",
             "type": "main",
             "index": 0
           }
@@ -1167,28 +1328,6 @@
         [
           {
             "node": "Stop and Error",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Search image by MD5": {
-      "main": [
-        [
-          {
-            "node": "New Image?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Search doc by MD5": {
-      "main": [
-        [
-          {
-            "node": "New document?",
             "type": "main",
             "index": 0
           }
@@ -1224,7 +1363,7 @@
         ],
         [
           {
-            "node": "Doc already exists",
+            "node": "Already exists",
             "type": "main",
             "index": 0
           }
@@ -1257,7 +1396,7 @@
       "main": [
         [
           {
-            "node": "Append row in sheet",
+            "node": "Valid image?",
             "type": "main",
             "index": 0
           }
@@ -1268,14 +1407,99 @@
       "main": [
         [
           {
-            "node": "Append doc row in sheet",
+            "node": "Valid document?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Append row in sheet": {
+    "Valid document?": {
+      "main": [
+        [
+          {
+            "node": "SetDocData",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete doc file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid image?": {
+      "main": [
+        [
+          {
+            "node": "SetImageData",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete image": {
+      "main": [
+        [
+          {
+            "node": "Invalid invoice image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invalid invoice image": {
+      "main": [
+        []
+      ]
+    },
+    "Delete doc file": {
+      "main": [
+        [
+          {
+            "node": "Invalid doc invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetImageData": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetDocData": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setMD5Key_Redis": {
       "main": [
         [
           {
@@ -1286,12 +1510,139 @@
         ]
       ]
     },
-    "Append doc row in sheet": {
+    "GetMD5Image_Redis": {
       "main": [
         [
           {
-            "node": "Success Message",
+            "node": "New Image?",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetMD5Doc_Redis": {
+      "main": [
+        [
+          {
+            "node": "New document?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI invoiceBillScan Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI invoiceBillScan Agent": {
+      "main": [
+        [
+          {
+            "node": "ReplyTelegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FinancialPrompt?": {
+      "main": [
+        [
+          {
+            "node": "AI invoiceBillScan Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "New feature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RenameFile": {
+      "main": [
+        []
+      ]
+    },
+    "Insert row": {
+      "main": [
+        [
+          {
+            "node": "setMD5Key_Redis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RenameFile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetDataTable": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI invoiceBillScan Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetParams": {
+      "main": [
+        [
+          {
+            "node": "Message Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "IsRelatedWithInvoice",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IsRelatedWithInvoice": {
+      "main": [
+        [
+          {
+            "node": "FinancialPrompt?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI invoiceBillScan Agent",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -1304,18 +1655,18 @@
     "callerPolicy": "workflowsFromSameOwner",
     "errorWorkflow": "yUuds9itCr81Ivjf"
   },
-  "versionId": "d6cfe1a7-b6bd-4087-879b-0a8ca8e667d9",
+  "versionId": "b5340a45-91c5-46dd-bf3a-254305dd84de",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "92d7adad842a7a63843f6ad7e7b1ecbf41b7466692d9c7982f4d770a025e1bca"
   },
-  "id": "J2n0AJOzVe0PpBpm",
+  "id": "bTWG6r4XgGVhom9m",
   "tags": [
     {
-      "name": "finanzas",
-      "id": "KhznOSPM4LLYX5PF",
       "createdAt": "2025-10-04T14:14:39.168Z",
-      "updatedAt": "2025-10-04T14:14:39.168Z"
+      "updatedAt": "2025-10-04T14:14:39.168Z",
+      "id": "KhznOSPM4LLYX5PF",
+      "name": "finanzas"
     }
   ]
 }
