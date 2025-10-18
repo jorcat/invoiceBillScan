@@ -79,7 +79,7 @@ This is used by the **Sub-Workflow** (`retrieveImageFlow`) for PDF/document anal
     ![Gemini](images/n8n_10.credentials.Gemini.jpg)
 3.  **Save:** Click **Save**.
 
-* **Google Gemini Documentation:** [https://docs.n8n.io/integrations/builtin/credentials/deepseek/](https://docs.n8n.io/integrations/builtin/credentials/deepseek/)
+* **Google Gemini Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/)
 
 ## 6. DeepSeek (Chat model)
 
@@ -91,7 +91,7 @@ This is used by the chatbot.
     ![Gemini](images/n8n_11.credentials.DeepSeek.jpg)
 3.  **Save:** Click **Save**.
 
-* **DeepSeek Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/)
+* **DeepSeek Documentation:** [https://docs.n8n.io/integrations/builtin/credentials/deepseek/](https://docs.n8n.io/integrations/builtin/credentials/deepseek/)
 
 ## 6. Redis (Cache)
 
@@ -107,7 +107,7 @@ This is used by the upload file.
     * **Port:** Port.
 3.  **Save:** Click **Save**.
 
-* **DeepSeek Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.google-gemini/)
+* **DeepSeek Documentation:** [https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.redis/](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.redis/)
 
 ## 8. 🌐 Homelab Connectivity: Exposing n8n for Webhooks and OAuth
 
